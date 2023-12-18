@@ -16,6 +16,9 @@ import java.net.URL;
 
 public class FireAlarm {
 	
+	public static final int MAX_TEMPERATURE = 80;
+	
+	ObjectMapper mapper;
 	// Sensors are stored in a hash map for easier access
 	private HashMap<String, String> sensors = new HashMap<String, String>();
 	
@@ -29,7 +32,7 @@ public class FireAlarm {
 		// at the end
 		Properties configProperties = new Properties();
 		String appLocation = System.getenv("firealarm.location");
-
+		mapper = new ObjectMapper();
 		try {
 			
 			configProperties.load(new FileInputStream(appLocation + "/resources/config.properties"));
@@ -76,11 +79,12 @@ public class FireAlarm {
 	}
 
 	// Read the temperature from a sensor
-	private int getTemperature(String room) throws SensorConnectionProblemException, IncorrectDataException {
+	public int getTemperature(String room) 
+			throws SensorConnectionProblemException, IncorrectDataException {
 
 		String endpoint = sensors.get(room);
 		URL url;
-		ObjectMapper mapper = new ObjectMapper();
+		
 		JsonNode result;
 
 		// Using the Jackson library we can get JSON directly from an
@@ -116,7 +120,7 @@ public class FireAlarm {
 
 	public boolean isTemperatureTooHigh() throws SensorConnectionProblemException, IncorrectDataException {
 		
-		final int MAX_TEMPERATURE = 80;
+		
 		
 		// If any temperature exceeds MAX_TEMPERATURE, then the 
 		// temperature is too high
