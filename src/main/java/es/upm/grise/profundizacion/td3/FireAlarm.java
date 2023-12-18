@@ -31,13 +31,9 @@ public class FireAlarm {
 		String appLocation = System.getenv("firealarm.location");
 
 		try {
-			
 			configProperties.load(new FileInputStream(appLocation + "/resources/config.properties"));
-			
 		} catch (Exception e) {
-			
 			throw new ConfigurationFileProblemException();
-			
 		}
 		  
 		// Then we obtain the database location
@@ -46,7 +42,6 @@ public class FireAlarm {
 		// Now we store the sensors' data in the sensors variable
 		// It takes several steps determined by the SQL API
 		try {
-			
 			// Create DB connection
 			Connection connection = DriverManager.getConnection(dblocation);
 
