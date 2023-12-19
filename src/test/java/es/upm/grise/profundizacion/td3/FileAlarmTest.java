@@ -1,12 +1,15 @@
 package es.upm.grise.profundizacion.td3;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,7 +49,7 @@ public class FileAlarmTest {
 	}
 	
 	/*
-	 * Created a temp directory and a temp config file
+	 * Is needed to change the envVar and content of dbconfig to mock the access into non existing db
 	 * @throws DatabaseProblemException
 	 * @throws IOException
 	 */
@@ -70,9 +73,27 @@ public class FileAlarmTest {
 		});
 	}
 	
+	/*
+	 * 
+	 * 
+	 */
 	@Test
-	public void endpointNotUsable() throws SensorConnectionProblemException {
-		
+	public void testBadRoomSensor() throws SensorConnectionProblemException {
+		assertThrows(SensorConnectionProblemException.class, () -> {
+			fireAlarm.getTemperature("");
+		});
+	}
+
+	/*
+	 * Changed fireAlarm sensors to protected to mock the access into a bad endpoint
+	 * @throws SensorConnectionProblemException
+	 */
+	@Test
+	public void testBadEndpoint() throws SensorConnectionProblemException {
+		fireAlarm.sensors.put("kitchen", "http://localhost:8080/de_verdad_no_mas_practicas");
+		assertThrows(SensorConnectionProblemException.class, () -> {
+			fireAlarm.getTemperature("");
+		});
 	}
 	
 	@Test
