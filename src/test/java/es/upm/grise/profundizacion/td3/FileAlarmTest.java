@@ -1,6 +1,12 @@
 package es.upm.grise.profundizacion.td3;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -9,12 +15,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 import uk.org.webcompere.systemstubs.jupiter.SystemStub;
@@ -85,29 +94,93 @@ public class FileAlarmTest {
 	}
 
 	/*
-	 * Changed fireAlarm sensors to protected to mock the access into a bad endpoint
+	 * Changed fireAlarm sensors to protected to mock the access into a bad endpoint.
 	 * @throws SensorConnectionProblemException
 	 */
 	@Test
 	public void testBadEndpoint() throws SensorConnectionProblemException {
 		fireAlarm.sensors.put("kitchen", "http://localhost:8080/de_verdad_no_mas_practicas");
 		assertThrows(SensorConnectionProblemException.class, () -> {
-			fireAlarm.getTemperature("");
+			fireAlarm.getTemperature("kitchen");
 		});
 	}
 	
+	/*
+	 * ObjectMapper has been changed in source code from a local variable to a protected atribute of the class
+	 * @throws IncorrectDataException
+	 * @throws JsonProcessingException
+	 */
 	@Test
-	public void responseWithoutJSON() throws IncorrectDataException {
-		
+	public void JSONResponseNull() throws IncorrectDataException, JsonProcessingException{
+		ObjectMapper mockObjectMapper = mock(ObjectMapper.class);
+		when(mockObjectMapper.readTree(any(String.class))).thenReturn(null);
+
+		fireAlarm.mapper = mockObjectMapper;
+		assertThrows(IncorrectDataException.class, () -> {
+			fireAlarm.getTemperature("kitchen");
+		});
+	}
+
+	/*
+	 * No dedicated changes for this test.
+	 * @throws IncorrectDataException
+	 * @throws JsonProcessingException
+	 */
+	@Test
+	public void JSONResponseWithoutTemperature() throws IncorrectDataException, JsonProcessingException{
+		ObjectMapper mockObjectMapper = mock(ObjectMapper.class);
+		fireAlarm.mapper = mockObjectMapper;
+
+		JsonNode mockNode = mock(JsonNode.class);
+		when(mockObjectMapper.readTree(any(String.class))).thenReturn(mockNode);
+		when(mockNode.get("temperature")).thenReturn(null);
+
+		assertThrows(IncorrectDataException.class, () -> fireAlarm.getTemperature("kitchen"));
+	}
+
+	/*
+	 * No dedicated changes for this test.
+	 * @throws IncorrectDataException
+	 * @throws JsonProcessingException
+	 */
+	@Test
+	public void JSONResponseTemperatureNotInteger() throws IncorrectDataException, JsonProcessingException {
+		ObjectMapper mockObjectMapper = mock(ObjectMapper.class);
+		String jsonString = "\"temperature\":\"3_cts\"";
+		JsonNode node = mockObjectMapper.readTree(jsonString);
+		when(mockObjectMapper.readTree(any(String.class))).thenReturn(node);
+
+		fireAlarm.mapper = mockObjectMapper;
+		assertThrows(IncorrectDataException.class, () -> {
+			fireAlarm.getTemperature("kitchen");
+		});
 	}
 	
+	/*
+	 * No source code change needed. A mock is needed to handle if temperature is too high or not.
+	 */
 	@Test
 	public void temperatureIsOk() {
-		
+		try {
+			doReturn(15).when(fireAlarm).getTemperature(anyString());
+			assertFalse(fireAlarm.isTemperatureTooHigh());
+		} catch (SensorConnectionProblemException | IncorrectDataException e) {
+			fail();
+			e.printStackTrace();
+		}
 	}
 	
+	/*
+	 * No source code change needed, only a mock.
+	 */
 	@Test
 	public void temperatureIsTooHigh() {
-		
+		try {
+			doReturn(100).when(fireAlarm).getTemperature(anyString());
+			assertTrue(fireAlarm.isTemperatureTooHigh());
+		} catch (SensorConnectionProblemException | IncorrectDataException e) {
+			fail();
+			e.printStackTrace();
+		}
 	}
 }
