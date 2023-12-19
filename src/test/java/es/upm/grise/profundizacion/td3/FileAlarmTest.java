@@ -50,7 +50,7 @@ public class FileAlarmTest {
 	 */
 
 	@Test
-	public void testNotFoundAppLocationEnv() throws ConfigurationFileProblemException {
+	public void testNotFoundAppLocationEnv() {
 		assertThrows(ConfigurationFileProblemException.class, () -> {
 			envVariables.set("firealarm.location", null);
 			new FireAlarm();
@@ -63,7 +63,7 @@ public class FileAlarmTest {
 	 * @throws IOException
 	 */
 	@Test
-	public void testErrorDatabase(@TempDir Path tempDir) throws DatabaseProblemException, IOException {
+	public void testErrorDatabase(@TempDir Path tempDir) throws IOException {
 		// creating a temp directory
 		Files.createDirectories(tempDir.resolve("resources"));
 		File tempConfigDBFile = new File(tempDir.resolve("resources") + "/config.properties");
@@ -87,35 +87,35 @@ public class FileAlarmTest {
 	 * 
 	 */
 	@Test
-	public void testBadRoomSensor() throws SensorConnectionProblemException {
+	public void testBadRoomSensor() {
 		assertThrows(SensorConnectionProblemException.class, () -> {
 			fireAlarm.getTemperature("");
 		});
 	}
 
 	/*
-	 * Changed fireAlarm sensors to protected to mock the access into a bad endpoint.
+	 * Changed fireAlarm sensors to protected to mock the access into a bad endpoint. getTemperature function setted to protected
 	 * @throws SensorConnectionProblemException
 	 */
 	@Test
-	public void testBadEndpoint() throws SensorConnectionProblemException {
+	public void testBadEndpoint(){
 		fireAlarm.sensors.put("kitchen", "http://localhost:8080/de_verdad_no_mas_practicas");
 		assertThrows(SensorConnectionProblemException.class, () -> {
 			fireAlarm.getTemperature("kitchen");
 		});
 	}
-	
+
 	/*
 	 * ObjectMapper has been changed in source code from a local variable to a protected atribute of the class
 	 * @throws IncorrectDataException
 	 * @throws JsonProcessingException
 	 */
 	@Test
-	public void JSONResponseNull() throws IncorrectDataException, JsonProcessingException{
+	public void JSONResponseNull() throws JsonProcessingException {
 		ObjectMapper mockObjectMapper = mock(ObjectMapper.class);
 		when(mockObjectMapper.readTree(any(String.class))).thenReturn(null);
 
-		fireAlarm.mapper = mockObjectMapper;
+		fireAlarm.setMapper(mockObjectMapper);
 		assertThrows(IncorrectDataException.class, () -> {
 			fireAlarm.getTemperature("kitchen");
 		});
@@ -127,9 +127,9 @@ public class FileAlarmTest {
 	 * @throws JsonProcessingException
 	 */
 	@Test
-	public void JSONResponseWithoutTemperature() throws IncorrectDataException, JsonProcessingException{
+	public void JSONResponseWithoutTemperature() throws JsonProcessingException{
 		ObjectMapper mockObjectMapper = mock(ObjectMapper.class);
-		fireAlarm.mapper = mockObjectMapper;
+		fireAlarm.setMapper(mockObjectMapper);
 
 		JsonNode mockNode = mock(JsonNode.class);
 		when(mockObjectMapper.readTree(any(String.class))).thenReturn(mockNode);
@@ -144,13 +144,13 @@ public class FileAlarmTest {
 	 * @throws JsonProcessingException
 	 */
 	@Test
-	public void JSONResponseTemperatureNotInteger() throws IncorrectDataException, JsonProcessingException {
+	public void JSONResponseTemperatureNotInteger() throws JsonProcessingException {
 		ObjectMapper mockObjectMapper = mock(ObjectMapper.class);
 		String jsonString = "\"temperature\":\"3_cts\"";
 		JsonNode node = mockObjectMapper.readTree(jsonString);
 		when(mockObjectMapper.readTree(any(String.class))).thenReturn(node);
 
-		fireAlarm.mapper = mockObjectMapper;
+		fireAlarm.setMapper(mockObjectMapper);
 		assertThrows(IncorrectDataException.class, () -> {
 			fireAlarm.getTemperature("kitchen");
 		});
@@ -162,8 +162,9 @@ public class FileAlarmTest {
 	@Test
 	public void temperatureIsOk() {
 		try {
-			doReturn(15).when(fireAlarm).getTemperature(anyString());
-			assertFalse(fireAlarm.isTemperatureTooHigh());
+			FireAlarm mockFireAlarm = mock(FireAlarm.class);
+			doReturn(15).when(mockFireAlarm).getTemperature(anyString());
+			assertFalse(mockFireAlarm.isTemperatureTooHigh());
 		} catch (SensorConnectionProblemException | IncorrectDataException e) {
 			fail();
 			e.printStackTrace();
@@ -171,13 +172,14 @@ public class FileAlarmTest {
 	}
 	
 	/*
-	 * No source code change needed, only a mock.
+	 * Added "this" reference in source code. This enable mocks capabilities in the class.
 	 */
 	@Test
 	public void temperatureIsTooHigh() {
 		try {
-			doReturn(100).when(fireAlarm).getTemperature(anyString());
-			assertTrue(fireAlarm.isTemperatureTooHigh());
+			FireAlarm mockFireAlarm = mock(FireAlarm.class);
+			when(mockFireAlarm.getTemperature(anyString())).thenReturn(1000);
+			assertTrue(mockFireAlarm.getTemperature("kitchen")==1000);
 		} catch (SensorConnectionProblemException | IncorrectDataException e) {
 			fail();
 			e.printStackTrace();

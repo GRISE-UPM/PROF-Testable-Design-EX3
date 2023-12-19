@@ -18,12 +18,11 @@ public class FireAlarm {
 	
 	// Sensors are stored in a hash map for easier access
 	protected HashMap<String, String> sensors = new HashMap<String, String>();
-	protected ObjectMapper mapper;
+	private ObjectMapper mapper;
 
 	// Constructor: read the sensors from the database and store them
 	// in the hash map
 	public FireAlarm() throws ConfigurationFileProblemException, DatabaseProblemException {
-		
 		// Read the property file to find out the database location
 		// As the executable can be located anywhere, so we store the
 		// app directory in a environment variable (without the slash
@@ -61,15 +60,19 @@ public class FireAlarm {
 			// Close the connection
 			connection.close();
 
+			mapper = new ObjectMapper();
 		} catch (Exception e) {
 			throw new DatabaseProblemException(); 
 		}
 
 	}
 
+	public void setMapper(ObjectMapper mapper){
+		this.mapper = mapper;
+	}
+
 	// Read the temperature from a sensor
 	protected int getTemperature(String room) throws SensorConnectionProblemException, IncorrectDataException {
-
 		String endpoint = sensors.get(room);
 		URL url;
 		JsonNode result;
@@ -106,14 +109,12 @@ public class FireAlarm {
 
 
 	public boolean isTemperatureTooHigh() throws SensorConnectionProblemException, IncorrectDataException {
-		
 		final int MAX_TEMPERATURE = 80;
 		
 		// If any temperature exceeds MAX_TEMPERATURE, then the 
 		// temperature is too high
 		for(Entry<String, String> sensor : sensors.entrySet()) {
-			
-			if(getTemperature(sensor.getKey()) > MAX_TEMPERATURE)
+			if(this.getTemperature(sensor.getKey()) > MAX_TEMPERATURE)
 					return true;
 		}
 		return false;
