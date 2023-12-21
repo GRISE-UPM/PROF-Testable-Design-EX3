@@ -142,10 +142,11 @@ public class FileAlarmTest {
 
 	@Test
 	public void testIsTemperatureTooHigh2(){
-		JsonNode mockNode=mock(JsonNode.class);
-		when(mockNode.asInt()).thenReturn(115);
+		ObjectMapper mockMapper=mock(ObjectMapper.class);
 
 		try{
+			JsonNode node=mockMapper.readTree("\"temperature\": \"115\"");
+			when(mockMapper.readTree(anyString())).thenReturn(node);
 			assertTrue(fireAlarm.isTemperatureTooHigh());
 		}catch(Exception e){
 			fail();
