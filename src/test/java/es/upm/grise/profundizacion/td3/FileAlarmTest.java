@@ -15,6 +15,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -141,11 +142,11 @@ public class FileAlarmTest {
 
 	@Test
 	public void testIsTemperatureTooHigh2(){
-		FireAlarm mockFireAlarm = mock(FireAlarm.class);
+		JsonNode mockNode=mock(JsonNode.class);
+		when(mockNode.asInt()).thenReturn(115);
 
 		try{
-			when(mockFireAlarm.getTemperature(anyString())).thenReturn(115);
-			assertTrue(mockFireAlarm.isTemperatureTooHigh());
+			assertTrue(fireAlarm.isTemperatureTooHigh());
 		}catch(Exception e){
 			fail();
 			e.printStackTrace();

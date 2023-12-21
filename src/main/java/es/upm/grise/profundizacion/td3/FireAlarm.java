@@ -18,6 +18,7 @@ public class FireAlarm {
 	
 	// Sensors are stored in a hash map for easier access
 	protected HashMap<String, String> sensors = new HashMap<String, String>();
+	protected HashMap<String, String> getSensors(){return sensors;}
 	private ObjectMapper mapper;
 	
 	// Constructor: read the sensors from the database and store them
@@ -114,6 +115,7 @@ public class FireAlarm {
 			throw new IncorrectDataException();
 
 		// When everything is correct, we return the temperature as an Int
+		int resultado=result.asInt();
 		return result.asInt();
 		
 	}
@@ -125,7 +127,7 @@ public class FireAlarm {
 		
 		// If any temperature exceeds MAX_TEMPERATURE, then the 
 		// temperature is too high
-		for(Entry<String, String> sensor : sensors.entrySet()) {
+		for(Entry<String, String> sensor : getSensors().entrySet()) {
 			
 			if(this.getTemperature(sensor.getKey()) > MAX_TEMPERATURE)
 					return true;
