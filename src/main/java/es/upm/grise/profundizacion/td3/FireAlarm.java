@@ -114,8 +114,6 @@ public class FireAlarm {
 		if(!result.canConvertToInt())
 			throw new IncorrectDataException();
 
-		// When everything is correct, we return the temperature as an Int
-		int resultado=result.asInt();
 		return result.asInt();
 		
 	}

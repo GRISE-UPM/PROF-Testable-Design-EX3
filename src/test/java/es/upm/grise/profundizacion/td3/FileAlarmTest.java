@@ -4,18 +4,17 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
+import java.net.URL;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,12 +42,7 @@ public class FileAlarmTest {
 	public void setUp() throws ConfigurationFileProblemException, DatabaseProblemException {
 		fireAlarm = new FireAlarm();
 	}
-
-	@Test
-	public void test() throws SensorConnectionProblemException, IncorrectDataException {
-		assertFalse(fireAlarm.isTemperatureTooHigh());
-	}
-
+	
 	@Test
 	public void testConfigurationFileProblemException(){
 		envVariables.set("firealarm.location", null);
@@ -118,7 +112,8 @@ public class FileAlarmTest {
 	@Test
 	public void testIncorrectDataException3() throws JsonMappingException, JsonProcessingException{
 		ObjectMapper mockMapper = mock(ObjectMapper.class);
-		JsonNode node=mockMapper.readTree("\"temperature\": \"foo\"");
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode node=mapper.readTree("{\"temperature\": \"foo\"}");
 		when(mockMapper.readTree(anyString())).thenReturn(node);	
 		
 		fireAlarm.setMapper(mockMapper);
@@ -128,12 +123,15 @@ public class FileAlarmTest {
 	}
 
 	@Test
-	public void testIsTemperatureTooHigh(){
-		FireAlarm mockFireAlarm = mock(FireAlarm.class);
-
+	public void testIsTemperatureTooHigh() throws JsonMappingException, JsonProcessingException{
+		ObjectMapper mockMapper = mock(ObjectMapper.class);
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode node=mapper.readTree("{\"temperature\": 33}");	
+		
 		try{
-			when(mockFireAlarm.getTemperature(anyString())).thenReturn(33);
-			assertFalse(mockFireAlarm.isTemperatureTooHigh());
+			when(mockMapper.readTree(any(URL.class))).thenReturn(node);
+			fireAlarm.setMapper(mockMapper);
+			assertFalse(fireAlarm.isTemperatureTooHigh());
 		}catch(Exception e){
 			fail();
 			e.printStackTrace();
@@ -141,16 +139,19 @@ public class FileAlarmTest {
 	}
 
 	@Test
-	public void testIsTemperatureTooHigh2(){
-		ObjectMapper mockMapper=mock(ObjectMapper.class);
-
+	public void testIsTemperatureTooHigh2() throws JsonMappingException, JsonProcessingException{
+		ObjectMapper mockMapper = mock(ObjectMapper.class);
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode node=mapper.readTree("{\"temperature\": 115}");	
+		
 		try{
-			JsonNode node=mockMapper.readTree("\"temperature\": \"115\"");
-			when(mockMapper.readTree(anyString())).thenReturn(node);
+			when(mockMapper.readTree(any(URL.class))).thenReturn(node);
+			fireAlarm.setMapper(mockMapper);
 			assertTrue(fireAlarm.isTemperatureTooHigh());
 		}catch(Exception e){
 			fail();
 			e.printStackTrace();
 		}
 	}
+
 }
