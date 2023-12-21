@@ -17,7 +17,9 @@ import java.net.URL;
 public class FireAlarm {
 	
 	// Sensors are stored in a hash map for easier access
-	private HashMap<String, String> sensors = new HashMap<String, String>();
+	protected HashMap<String, String> sensors = new HashMap<String, String>();
+	private ObjectMapper mapper;
+	protected void setMapper(ObjectMapper mapper){this.mapper=mapper;}
 	
 	// Constructor: read the sensors from the database and store them
 	// in the hash map
@@ -76,11 +78,11 @@ public class FireAlarm {
 	}
 
 	// Read the temperature from a sensor
-	private int getTemperature(String room) throws SensorConnectionProblemException, IncorrectDataException {
+	protected int getTemperature(String room) throws SensorConnectionProblemException, IncorrectDataException {
 
 		String endpoint = sensors.get(room);
 		URL url;
-		ObjectMapper mapper = new ObjectMapper();
+		mapper = mapper==null ? new ObjectMapper() : mapper;
 		JsonNode result;
 
 		// Using the Jackson library we can get JSON directly from an
