@@ -43,6 +43,7 @@ public class FileAlarmTest {
 		fireAlarm = new FireAlarm();
 	}
 	
+	//Sin vambios
 	@Test
 	public void testConfigurationFileProblemException(){
 		envVariables.set("firealarm.location", null);
@@ -52,6 +53,7 @@ public class FileAlarmTest {
 		});
 	}
 
+	//Sin cambios
 	@Test
 	public void testDatabaseProblemException(@TempDir Path tmpDir) throws IOException{
 		Files.createDirectories(tmpDir.resolve("resources"));
@@ -70,6 +72,7 @@ public class FileAlarmTest {
 		});
 	}
 
+	//getTemperature es cambido a protected 
 	@Test
 	public void testSensorConnectionProblemException(){
 		assertThrows(SensorConnectionProblemException.class, ()->{
@@ -77,6 +80,7 @@ public class FileAlarmTest {
 		});
 	}
 
+	//Sensor es ahora protected
 	@Test
 	public void testSensorConnectionProblemException2(){
 		fireAlarm.sensors.put("bathroom", "https://google.com");
@@ -85,6 +89,8 @@ public class FileAlarmTest {
 		});
 	}
 
+	//Es necesario añador un metodo para modificar el mapper usado y comporbar si ya esta inicilizado antes de usarlo
+	//y un atrubuto de la clase para mantener su valor
 	@Test
 	public void testIncorrectDataException() throws JsonMappingException, JsonProcessingException{
 		ObjectMapper mockMapper = mock(ObjectMapper.class);
@@ -96,6 +102,7 @@ public class FileAlarmTest {
 		});
 	}
 
+	//No hay cambio
 	@Test
 	public void testIncorrectDataException2() throws JsonMappingException, JsonProcessingException{
 		ObjectMapper mockMapper = mock(ObjectMapper.class);
@@ -109,6 +116,7 @@ public class FileAlarmTest {
 		});
 	}
 
+	//No hay cambio
 	@Test
 	public void testIncorrectDataException3() throws JsonMappingException, JsonProcessingException{
 		ObjectMapper mockMapper = mock(ObjectMapper.class);
@@ -122,6 +130,7 @@ public class FileAlarmTest {
 		});
 	}
 
+	//No hay cambio
 	@Test
 	public void testIsTemperatureTooHigh() throws JsonMappingException, JsonProcessingException{
 		ObjectMapper mockMapper = mock(ObjectMapper.class);
@@ -138,6 +147,7 @@ public class FileAlarmTest {
 		}
 	}
 
+	//No hay cambio
 	@Test
 	public void testIsTemperatureTooHigh2() throws JsonMappingException, JsonProcessingException{
 		ObjectMapper mockMapper = mock(ObjectMapper.class);
