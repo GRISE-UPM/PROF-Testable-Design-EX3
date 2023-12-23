@@ -17,17 +17,17 @@ import java.net.URL;
 public class FireAlarm {
 	
 	// Sensors are stored in a hash map for easier access
-	private HashMap<String, String> sensors = new HashMap<String, String>();
+	HashMap<String, String> sensors = new HashMap<String, String>();
 	
 	// Constructor: read the sensors from the database and store them
 	// in the hash map
-	public FireAlarm(Properties configProperties) throws ConfigurationFileProblemException, DatabaseProblemException {
+	public FireAlarm() throws ConfigurationFileProblemException, DatabaseProblemException {
 		
 		// Read the property file to find out the database location
 		// As the executable can be located anywhere, so we store the
 		// app directory in a environment variable (without the slash
 		// at the end
-		//Properties configProperties = new Properties();
+		Properties configProperties = new Properties();
 		String appLocation = System.getenv("firealarm.location");
 
 		try {
@@ -76,7 +76,7 @@ public class FireAlarm {
 	}
 
 	// Read the temperature from a sensor
-	private int getTemperature(String room) throws SensorConnectionProblemException, IncorrectDataException {
+	int getTemperature(String room) throws SensorConnectionProblemException, IncorrectDataException {
 
 		String endpoint = sensors.get(room);
 		URL url;
