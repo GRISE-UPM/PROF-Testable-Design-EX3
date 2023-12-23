@@ -1,7 +1,11 @@
 package es.upm.grise.profundizacion.td3;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
@@ -14,10 +18,8 @@ import java.nio.file.Paths;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.io.TempDir;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -126,6 +128,28 @@ public class FileAlarmTest {
 
 		fireAlarm.mapper = objectMapper;
 		assertThrows(IncorrectDataException.class, () -> fireAlarm.getTemperature("kitchen"));
+	}
+
+	// 5º Test: Cuando todos los sensores devuelven una temperatura <= MAX_TEMPERATURE, el método isTemperatureTooHigh() devuelve false.
+	@Test
+	public void testIsTemperatureTooHighFalse() throws SensorConnectionProblemException, IncorrectDataException {
+
+		// Se crea un objeto espia de FireAlarm para poder manipular el resultado de las temperaturas que recoge
+		FireAlarm spyFireAlarm = spy(fireAlarm);
+		doReturn(10).when(spyFireAlarm).getTemperature(anyString());
+		assertFalse(spyFireAlarm.isTemperatureTooHigh());
+
+	}
+
+	// 6º Test: Cuando algún sensor devuelve una temperatura > MAX_TEMPERATURE, el método isTemperatureTooHigh() devuelve true.
+	@Test
+	public void testIsTemperatureTooHighTrue() throws SensorConnectionProblemException, IncorrectDataException {
+
+		// Se crea un objeto espia de FireAlarm para poder manipular el resultado de las temperaturas que recoge
+		FireAlarm spyFireAlarm = spy(fireAlarm);
+		doReturn(100).when(spyFireAlarm).getTemperature(anyString());
+		assertTrue(spyFireAlarm.isTemperatureTooHigh());
+
 	}
 
 }
