@@ -21,13 +21,13 @@ public class FireAlarm {
 	
 	// Constructor: read the sensors from the database and store them
 	// in the hash map
-	public FireAlarm() throws ConfigurationFileProblemException, DatabaseProblemException {
+	public FireAlarm(Properties configProperties) throws ConfigurationFileProblemException, DatabaseProblemException {
 		
 		// Read the property file to find out the database location
 		// As the executable can be located anywhere, so we store the
 		// app directory in a environment variable (without the slash
 		// at the end
-		Properties configProperties = new Properties();
+		//Properties configProperties = new Properties();
 		String appLocation = System.getenv("firealarm.location");
 
 		try {

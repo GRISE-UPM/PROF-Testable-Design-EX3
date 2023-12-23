@@ -1,12 +1,14 @@
 package es.upm.grise.profundizacion.td3;
 
+import java.util.Properties;
+
 public class FireAlarmApp {
 
 	public static void main(String[] args) {
 
 		try {
-
-			FireAlarm fireAlarm = new FireAlarm();
+			Properties configProperties = new Properties();
+			FireAlarm fireAlarm = new FireAlarm(configProperties);
 
 			// Main loop
 			while (true) {
