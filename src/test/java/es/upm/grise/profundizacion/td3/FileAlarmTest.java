@@ -16,6 +16,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 import uk.org.webcompere.systemstubs.jupiter.SystemStub;
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
@@ -85,4 +90,42 @@ public class FileAlarmTest {
 	}
 
 	// 4º Test: Si el objeto JSON devuelto no contiene la clave “temperature”, o el valor devuelto no es entero, la aplicación lanza una IncorrectDataException.
+	// Modificación: La el objeto ObjestMapper se ha convertido en pakcage para poder acceder a él desde el test
+
+	// Comprobación que devuelve la excepción en caso de que no se devuelva ningun JSON
+	@Test
+	public void testIncorrectDataExceptionEmpty() throws IncorrectDataException, JsonProcessingException {
+		ObjectMapper objectMapper = mock(ObjectMapper.class);
+
+		when(objectMapper.readTree("")).thenReturn(null);
+
+		fireAlarm.mapper = objectMapper;
+		assertThrows(IncorrectDataException.class, () -> fireAlarm.getTemperature("kitchen"));
+	}
+
+	// Comprobación que devuelve la excepción en caso de que el JSON no contenga la clave "temperature"
+	@Test
+	public void testIncorrectDataExceptionNoTemperature() throws IncorrectDataException, JsonProcessingException {
+		ObjectMapper objectMapper = mock(ObjectMapper.class);
+		JsonNode result = mock(JsonNode.class);
+		
+		when(objectMapper.readTree("")).thenReturn(result);
+		when(result.get("temperature")).thenReturn(null);
+
+		fireAlarm.mapper = objectMapper;
+		assertThrows(IncorrectDataException.class, () -> fireAlarm.getTemperature("kitchen"));
+	}
+
+	// Comprobación que devuelve la excepción en caso de que el JSON no contenga un valor entero
+	@Test
+	public void testIncorrectDataExceptionNotInteger() throws IncorrectDataException, JsonProcessingException {
+		ObjectMapper objectMapper = mock(ObjectMapper.class);
+		JsonNode nodo = objectMapper.readTree("temperatura");
+		
+		when(objectMapper.readTree("")).thenReturn(nodo);
+
+		fireAlarm.mapper = objectMapper;
+		assertThrows(IncorrectDataException.class, () -> fireAlarm.getTemperature("kitchen"));
+	}
+
 }
