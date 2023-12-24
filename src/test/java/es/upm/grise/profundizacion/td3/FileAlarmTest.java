@@ -179,5 +179,14 @@ public class FileAlarmTest {
 		assertTrue(fireAlarmSpy.isTemperatureTooHigh());
 	}
 	//FELIZ NAVIDAD!! (estoy escribiendo esto el 24 de diciembre)
+	/*
+	 * Me ha costado bastante hacer los tests, pero creo que he aprendido bastante.
+	 * Intente extraer en una clase aparte el manejo de la base de datos para intentar
+	 * seguir el principio de responsabilidad única y de inyeccion de dependencias,
+	 * de manera que esa nueva clase DBManager se pasaba al constructor de FireAlarm, 
+	 * pero implcaba cambiar mucho código y dejaba de tener sentido el enunciado del ejercicio
+	 * así que borré los cambios. Me gustaría saber si en el caso de no haber sido un ejercicio, 
+	 * si hubiera sido correcto hacerlo.
+	 */
 
 }
