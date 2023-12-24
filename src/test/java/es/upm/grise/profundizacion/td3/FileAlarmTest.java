@@ -2,7 +2,9 @@ package es.upm.grise.profundizacion.td3;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
@@ -148,5 +150,34 @@ public class FileAlarmTest {
 		});
 	}
 
+	/*
+	 * e)
+	 * When all sensors return a temperature <= MAX_TEMPERATURE, 
+	 * the isTemperatureTooHigh() method returns false.
+	 * No production code changes were needed.
+	 */
+	@Test
+    public void testIsTemperatureTooHigh_AllSensorsReturnTemperatureLessThanMax() throws Exception {
+        FireAlarm fireAlarmSpy = spy(new FireAlarm(query));
+
+        doReturn(33).when(fireAlarmSpy).getTemperature(anyString());
+        assertFalse(fireAlarmSpy.isTemperatureTooHigh());
+    }
+
+	/*
+	 * f)
+	 * When any sensor returns a temperature > MAX_TEMPERATURE, 
+	 * the isTemperatureTooHigh() method returns true.
+	 * No production code changes were needed.
+	 */
+	@Test
+	public void testIsTemperatureTooHigh_AnySensorReturnsTemperatureGreaterThanMax() throws Exception {
+		FireAlarm fireAlarmSpy = spy(new FireAlarm(query));
+
+		doReturn(33).when(fireAlarmSpy).getTemperature(anyString());
+		doReturn(81).when(fireAlarmSpy).getTemperature("kitchen");
+		assertTrue(fireAlarmSpy.isTemperatureTooHigh());
+	}
+	//FELIZ NAVIDAD!! (estoy escribiendo esto el 24 de diciembre)
 
 }
