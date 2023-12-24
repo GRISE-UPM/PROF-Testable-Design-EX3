@@ -15,6 +15,7 @@ import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 public class FileAlarmTest {
 	
 	FireAlarm fireAlarm;
+	String query;
 
 	@SystemStub
 	private EnvironmentVariables envVariables = new EnvironmentVariables(
@@ -25,7 +26,8 @@ public class FileAlarmTest {
 	@BeforeEach
 	public void setUp() throws ConfigurationFileProblemException, DatabaseProblemException 
 	{
-		fireAlarm = new FireAlarm();
+		query = "SELECT * FROM SENSORS";
+		fireAlarm = new FireAlarm(query);
 	}
 	
 	/*
@@ -37,10 +39,24 @@ public class FileAlarmTest {
 	{
 		envVariables.set("firealarm.location", "non-existing-file");
 		assertThrows(ConfigurationFileProblemException.class, () -> {
-			fireAlarm = new FireAlarm();
+			fireAlarm = new FireAlarm(query);
 		});
 	}
 
-	
+	/*
+	 * Any database error, e.g. connection problem or query error, 
+	 * implies the launching of a DatabaseProblemException.
+	 * For this test, query was added as a parameter to the constructor.
+	 * This way, we apply the Dependency Inversion Principle,
+	 * making FireAlarm more flexible and testable.
+	 */
+	@Test
+	public void testDatabaseError() 
+	{
+		query = "SELECT * FROM NON_EXISTING_TABLE";
+		assertThrows(DatabaseProblemException.class, () -> {
+			fireAlarm = new FireAlarm(query);
+		});
+	}
 
 }

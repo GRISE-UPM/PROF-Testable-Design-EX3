@@ -21,7 +21,8 @@ public class FireAlarm {
 	
 	// Constructor: read the sensors from the database and store them
 	// in the hash map
-	public FireAlarm() throws ConfigurationFileProblemException, DatabaseProblemException {
+	// The query is passed as a parameter to allow testing
+	public FireAlarm(String query) throws ConfigurationFileProblemException, DatabaseProblemException {
 		
 		// Read the property file to find out the database location
 		// As the executable can be located anywhere, so we store the
@@ -51,7 +52,6 @@ public class FireAlarm {
 			Connection connection = DriverManager.getConnection(dblocation);
 
 			// Read from the sensors table
-			String query = "SELECT * FROM sensors";
 			Statement statement = connection.createStatement();
 			ResultSet resultSet = statement.executeQuery(query);
 

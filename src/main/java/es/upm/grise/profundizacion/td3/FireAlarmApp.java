@@ -6,7 +6,8 @@ public class FireAlarmApp {
 
 		try {
 
-			FireAlarm fireAlarm = new FireAlarm();
+			String query = "SELECT * FROM SENSORS";
+			FireAlarm fireAlarm = new FireAlarm(query);
 
 			// Main loop
 			while (true) {
