@@ -75,4 +75,16 @@ public class FileAlarmTest {
 		});
 	}
 
+	/*
+	 * When the endpoint is incorrect, the application throws SensorConnectionProblemException.
+	 * Changed sensors to protected.
+	 */
+	@Test
+	public void testIncorrectDataException() throws SensorConnectionProblemException, IncorrectDataException {
+		fireAlarm.sensors.put("potato-room", "http://steam.com");
+		assertThrows(SensorConnectionProblemException.class, () -> {
+			fireAlarm.getTemperature("potato-room");
+		});
+	}
+
 }
