@@ -17,11 +17,13 @@ import java.net.URL;
 public class FireAlarm {
 	
 	// Sensors are stored in a hash map for easier access
-	private HashMap<String, String> sensors = new HashMap<String, String>();
+	protected HashMap<String, String> sensors = new HashMap<String, String>();
+	protected ObjectMapper mapper = new ObjectMapper();
 	
 	// Constructor: read the sensors from the database and store them
 	// in the hash map
-	public FireAlarm() throws ConfigurationFileProblemException, DatabaseProblemException {
+	// The query is passed as a parameter to allow testing
+	public FireAlarm(String query) throws ConfigurationFileProblemException, DatabaseProblemException {
 		
 		// Read the property file to find out the database location
 		// As the executable can be located anywhere, so we store the
@@ -51,7 +53,6 @@ public class FireAlarm {
 			Connection connection = DriverManager.getConnection(dblocation);
 
 			// Read from the sensors table
-			String query = "SELECT * FROM sensors";
 			Statement statement = connection.createStatement();
 			ResultSet resultSet = statement.executeQuery(query);
 
@@ -76,11 +77,10 @@ public class FireAlarm {
 	}
 
 	// Read the temperature from a sensor
-	private int getTemperature(String room) throws SensorConnectionProblemException, IncorrectDataException {
+	protected int getTemperature(String room) throws SensorConnectionProblemException, IncorrectDataException {
 
 		String endpoint = sensors.get(room);
 		URL url;
-		ObjectMapper mapper = new ObjectMapper();
 		JsonNode result;
 
 		// Using the Jackson library we can get JSON directly from an
