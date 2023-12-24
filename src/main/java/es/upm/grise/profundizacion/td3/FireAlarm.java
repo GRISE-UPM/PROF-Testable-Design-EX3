@@ -18,11 +18,17 @@ public class FireAlarm {
 	
 	// Sensors are stored in a hash map for easier access
 	private HashMap<String, String> sensors;
+	private ObjectMapper mapper;
 	
 	// Constructor: read the sensors from the database and store them
 	// in the hash map
 	public FireAlarm() {
 		this.sensors = new HashMap<String, String>();
+		this.mapper = new ObjectMapper();
+	}
+
+	public void setMapper(ObjectMapper mapper) {
+		this.mapper = mapper;
 	}
 
 	public void setSensors(HashMap<String, String> sensors) {
@@ -86,14 +92,13 @@ public class FireAlarm {
 
 		String endpoint = sensors.get(room);
 		URL url;
-		ObjectMapper mapper = new ObjectMapper();
 		JsonNode result;
 
 		// Using the Jackson library we can get JSON directly from an
 		// URL using an ObjectMapper
 		try {
 			url = new URL(endpoint);
-			result = mapper.readTree(url);
+			result = this.mapper.readTree(url);
 		} catch (Exception e) {
 			throw new SensorConnectionProblemException();
 		}

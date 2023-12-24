@@ -14,14 +14,14 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 import uk.org.webcompere.systemstubs.jupiter.SystemStub;
@@ -35,11 +35,14 @@ public class FileAlarmTest {
 
 	FireAlarm fireAlarm;
 
-	private FireAlarm fireAlarmMock;
+	private ObjectMapper mapperMock;
+	private JsonNode jsonNodeMock;
 
 	@BeforeEach
 	public void setUp() throws ConfigurationFileProblemException, DatabaseProblemException {
-		fireAlarmMock = mock(FireAlarm.class);
+		mapperMock = mock(ObjectMapper.class);
+		jsonNodeMock = mock(JsonNode.class);
+		
 		fireAlarm = new FireAlarm();
 	}
 
@@ -89,6 +92,15 @@ public class FileAlarmTest {
 			method.setAccessible(true);
 			method.invoke(fireAlarm, "room");
 		});
+	}
+
+	@Test
+	public void test_IncorrectDataException() throws IncorrectDataException, JsonProcessingException {
+		when(mapperMock.readTree(anyString())).thenReturn(jsonNodeMock);
+		when(jsonNodeMock.get(anyString())).thenReturn(null);
+
+		fireAlarm.setMapper(mapperMock);
+		assertThrows(IncorrectDataException.class, () -> fireAlarm.getTemperature("kitchen"));
 	}
 
 	@Test
