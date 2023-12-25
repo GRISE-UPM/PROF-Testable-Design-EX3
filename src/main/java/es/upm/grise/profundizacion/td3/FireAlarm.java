@@ -18,7 +18,8 @@ public class FireAlarm {
 	
 	// Sensors are stored in a hash map for easier access
 	private HashMap<String, String> sensors = new HashMap<String, String>();
-	
+	private ObjectMapper OM= new ObjectMapper();
+	Properties configProperties;
 	// Constructor: read the sensors from the database and store them
 	// in the hash map
 	public FireAlarm() throws ConfigurationFileProblemException, DatabaseProblemException {
@@ -27,7 +28,7 @@ public class FireAlarm {
 		// As the executable can be located anywhere, so we store the
 		// app directory in a environment variable (without the slash
 		// at the end
-		Properties configProperties = new Properties();
+		configProperties = new Properties();
 		String appLocation = System.getenv("firealarm.location");
 
 		try {
@@ -74,20 +75,40 @@ public class FireAlarm {
 		}
 
 	}
+	public ResultSet queryDB(String query) throws DatabaseProblemException {
+		String dblocation = configProperties.getProperty("dblocation");
+		// Now we store the sensors' data in the sensors variable
+		// It takes several steps determined by the SQL API
+		try {
+
+			// Create DB connection
+			Connection connection = DriverManager.getConnection(dblocation);
+			// Read from the sensors table
+			Statement statement = connection.createStatement();
+			ResultSet resultSet = statement.executeQuery(query);
+			connection.close();
+			return resultSet;
+
+		} catch (Exception e) {
+
+			throw new DatabaseProblemException();
+
+		}
+	}
 
 	// Read the temperature from a sensor
-	private int getTemperature(String room) throws SensorConnectionProblemException, IncorrectDataException {
+	public int getTemperature(String room) throws SensorConnectionProblemException, IncorrectDataException {
 
 		String endpoint = sensors.get(room);
 		URL url;
-		ObjectMapper mapper = new ObjectMapper();
+
 		JsonNode result;
 
 		// Using the Jackson library we can get JSON directly from an
 		// URL using an ObjectMapper
 		try {
 			url = new URL(endpoint);
-			result = mapper.readTree(url);
+			result = OM.readTree(url);
 		} catch (Exception e) {
 			throw new SensorConnectionProblemException();
 		}
@@ -129,5 +150,8 @@ public class FireAlarm {
 		return false;
 		
 	}
-	
+
+	public void setObjectMapper(ObjectMapper mockedMapper) {
+		OM=mockedMapper;
+	}
 }
