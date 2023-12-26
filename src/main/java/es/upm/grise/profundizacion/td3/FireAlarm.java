@@ -77,7 +77,7 @@ public class FireAlarm {
 	}
 
 	// Read the temperature from a sensor
-	protected int getTemperature(String room) throws SensorConnectionProblemException, IncorrectDataException {
+	private int getTemperature(String room) throws SensorConnectionProblemException, IncorrectDataException {
 
 		String endpoint = sensors.get(room);
 		URL url;

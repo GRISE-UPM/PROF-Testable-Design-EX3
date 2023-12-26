@@ -66,6 +66,7 @@ public class FileAlarmTest {
 	@Test
 	public void test_NoAbsolutePathToFireAlarm_ConfFileException()
 			throws ConfigurationFileProblemException, DatabaseProblemException {
+
 		assertThrows(ConfigurationFileProblemException.class, () -> {
 			this.locationEnvironmentVariables.set("firealarm.location", null);
 			new FireAlarm();
@@ -119,9 +120,11 @@ public class FileAlarmTest {
 	public void test_NoUsefulEndpoint_SensorConnectionProblemException()
 			throws ConfigurationFileProblemException, DatabaseProblemException, IOException, NoSuchFieldException,
 			SecurityException, IllegalArgumentException, IllegalAccessException {
+
 		HashMap<String, String> sensorsTest = new HashMap<>();
 		sensorsTest.put("room", "errorEndpoint");
 		sensorsField.set(fireAlarm, sensorsTest);
+
 		assertThrows(SensorConnectionProblemException.class, () -> fireAlarm.isTemperatureTooHigh());
 	}
 
@@ -133,6 +136,7 @@ public class FileAlarmTest {
 		HashMap<String, String> sensorsTest = new HashMap<>();
 		sensorsTest.put("bathroom", "https://localhost:8080/house/bathroom");
 		sensorsField.set(fireAlarm, sensorsTest);
+
 		when(objectMapper.readTree(any(URL.class))).thenReturn(null);
 
 		assertThrows(IncorrectDataException.class, () -> fireAlarm.isTemperatureTooHigh());
@@ -147,11 +151,11 @@ public class FileAlarmTest {
 		HashMap<String, String> sensorsTest = new HashMap<>();
 		sensorsTest.put("bathroom", "https://localhost:8080/house/bathroom");
 		sensorsField.set(fireAlarm, sensorsTest);
+
 		when(objectMapper.readTree(any(URL.class))).thenReturn(result);
-
 		when(result.get("temperature")).thenReturn(null);
-		assertThrows(IncorrectDataException.class, () -> fireAlarm.isTemperatureTooHigh());
 
+		assertThrows(IncorrectDataException.class, () -> fireAlarm.isTemperatureTooHigh());
 	}
 
 	@Test
@@ -164,40 +168,44 @@ public class FileAlarmTest {
 		sensorsTest.put("bathroom", "https://localhost:8080/house/bathroom");
 		sensorsField.set(fireAlarm, sensorsTest);
 		when(objectMapper.readTree(any(URL.class))).thenReturn(result);
-
 		when(result.get("temperature")).thenReturn(result);
 		when(result.canConvertToInt()).thenReturn(false);
+
 		assertThrows(IncorrectDataException.class, () -> fireAlarm.isTemperatureTooHigh());
 	}
 
 	@Test
 	public void test_TemperatureBelow80() throws SensorConnectionProblemException, IncorrectDataException,
 			IllegalArgumentException, IllegalAccessException, IOException {
+
 		JsonNode result = mock(JsonNode.class);
 		HashMap<String, String> sensorsTest = new HashMap<>();
 		sensorsTest.put("bathroom", "https://localhost:8080/house/bathroom");
 		sensorsField.set(fireAlarm, sensorsTest);
-		when(objectMapper.readTree(any(URL.class))).thenReturn(result);
 
+		when(objectMapper.readTree(any(URL.class))).thenReturn(result);
 		when(result.get("temperature")).thenReturn(result);
 		when(result.canConvertToInt()).thenReturn(true);
 		when(result.asInt()).thenReturn(79);
+
 		assertFalse(fireAlarm.isTemperatureTooHigh());
-		;
 	}
 
 	@Test
 	public void test_TemperatureOver80() throws SensorConnectionProblemException, IncorrectDataException,
 			IllegalArgumentException, IllegalAccessException, IOException {
+
 		JsonNode result = mock(JsonNode.class);
 		HashMap<String, String> sensorsTest = new HashMap<>();
+
 		sensorsTest.put("bathroom", "https://localhost:8080/house/bathroom");
 		sensorsField.set(fireAlarm, sensorsTest);
-		when(objectMapper.readTree(any(URL.class))).thenReturn(result);
 
+		when(objectMapper.readTree(any(URL.class))).thenReturn(result);
 		when(result.get("temperature")).thenReturn(result);
 		when(result.canConvertToInt()).thenReturn(true);
 		when(result.asInt()).thenReturn(100);
+
 		assertTrue(fireAlarm.isTemperatureTooHigh());
 	}
 
