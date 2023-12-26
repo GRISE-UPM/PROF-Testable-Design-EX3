@@ -27,6 +27,11 @@ import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 import uk.org.webcompere.systemstubs.jupiter.SystemStub;
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
+/*
+ * EL CAMBIO REALIZADO EN LA CLASE FireAlarm.java ES EL SIGUIENTE:
+ * 	- SE HA AÑADIDO COMO ATRIBUTO DE LA CLASE EL OBJETO ObjectMapper mapper, PARA PODER 
+ * 	  MOCKEARLO EN LOS TESTS DE MANERA EFECTIVA.
+ */
 @ExtendWith(SystemStubsExtension.class)
 public class FileAlarmTest {
 
@@ -128,6 +133,21 @@ public class FileAlarmTest {
 		assertThrows(SensorConnectionProblemException.class, () -> fireAlarm.isTemperatureTooHigh());
 	}
 
+	/**
+	 * Test case to verify that an IncorrectDataException is thrown when there is no
+	 * result from the sensor
+	 * and the result is null.
+	 *
+	 * @throws ConfigurationFileProblemException if there is a problem with the
+	 *                                           configuration file
+	 * @throws DatabaseProblemException          if there is a problem with the
+	 *                                           database
+	 * @throws IOException                       if there is an I/O problem
+	 * @throws NoSuchFieldException              if there is no such field
+	 * @throws SecurityException                 if there is a security violation
+	 * @throws IllegalArgumentException          if there is an illegal argument
+	 * @throws IllegalAccessException            if there is an illegal access
+	 */
 	@Test
 	public void test_NoResultFromSensor_IncorrectDataException_NullResult()
 			throws ConfigurationFileProblemException, DatabaseProblemException, IOException, NoSuchFieldException,
@@ -142,6 +162,22 @@ public class FileAlarmTest {
 		assertThrows(IncorrectDataException.class, () -> fireAlarm.isTemperatureTooHigh());
 	}
 
+	/**
+	 * Test case to verify that an IncorrectDataException is thrown when there is no
+	 * result from the sensor
+	 * and the temperature value is null.
+	 *
+	 * @throws ConfigurationFileProblemException if there is a problem with the
+	 *                                           configuration file
+	 * @throws DatabaseProblemException          if there is a problem with the
+	 *                                           database
+	 * @throws IOException                       if there is an I/O error
+	 * @throws NoSuchFieldException              if a field is not found
+	 * @throws SecurityException                 if a security violation occurs
+	 * @throws IllegalArgumentException          if an illegal argument is passed
+	 * @throws IllegalAccessException            if an illegal access to a field
+	 *                                           occurs
+	 */
 	@Test
 	public void test_NoResultFromSensor_IncorrectDataException_NullTemp()
 			throws ConfigurationFileProblemException, DatabaseProblemException, IOException, NoSuchFieldException,
@@ -158,6 +194,20 @@ public class FileAlarmTest {
 		assertThrows(IncorrectDataException.class, () -> fireAlarm.isTemperatureTooHigh());
 	}
 
+	/**
+	 * Test case to verify that an IncorrectDataException is thrown when there is no
+	 * result from the sensor and the data is not a number.
+	 * 
+	 * @throws ConfigurationFileProblemException if there is a problem with the
+	 *                                           configuration file
+	 * @throws DatabaseProblemException          if there is a problem with the
+	 *                                           database
+	 * @throws IOException                       if there is an I/O problem
+	 * @throws NoSuchFieldException              if there is no such field
+	 * @throws SecurityException                 if there is a security violation
+	 * @throws IllegalArgumentException          if there is an illegal argument
+	 * @throws IllegalAccessException            if there is an illegal access
+	 */
 	@Test
 	public void test_NoResultFromSensor_IncorrectDataException_NoNumber()
 			throws ConfigurationFileProblemException, DatabaseProblemException, IOException, NoSuchFieldException,
@@ -174,6 +224,19 @@ public class FileAlarmTest {
 		assertThrows(IncorrectDataException.class, () -> fireAlarm.isTemperatureTooHigh());
 	}
 
+	/**
+	 * Test case to verify the behavior of the fire alarm when the temperature is
+	 * below 80 degrees.
+	 * 
+	 * @throws SensorConnectionProblemException if there is a problem connecting to
+	 *                                          the sensor
+	 * @throws IncorrectDataException           if the data received from the sensor
+	 *                                          is incorrect
+	 * @throws IllegalArgumentException         if an invalid argument is passed
+	 * @throws IllegalAccessException           if there is an illegal access to a
+	 *                                          field or method
+	 * @throws IOException                      if an I/O error occurs
+	 */
 	@Test
 	public void test_TemperatureBelow80() throws SensorConnectionProblemException, IncorrectDataException,
 			IllegalArgumentException, IllegalAccessException, IOException {
@@ -191,6 +254,20 @@ public class FileAlarmTest {
 		assertFalse(fireAlarm.isTemperatureTooHigh());
 	}
 
+	/**
+	 * Test case to verify the behavior of the fire alarm when the temperature is
+	 * over 80 degrees.
+	 * 
+	 * @throws SensorConnectionProblemException if there is a problem connecting to
+	 *                                          the sensor
+	 * @throws IncorrectDataException           if the data received from the sensor
+	 *                                          is incorrect
+	 * @throws IllegalArgumentException         if an invalid argument is passed to
+	 *                                          the method
+	 * @throws IllegalAccessException           if there is an illegal access to a
+	 *                                          field or method
+	 * @throws IOException                      if an I/O error occurs
+	 */
 	@Test
 	public void test_TemperatureOver80() throws SensorConnectionProblemException, IncorrectDataException,
 			IllegalArgumentException, IllegalAccessException, IOException {
