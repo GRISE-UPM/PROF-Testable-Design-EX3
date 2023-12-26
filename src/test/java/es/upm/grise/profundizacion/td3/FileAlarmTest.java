@@ -5,14 +5,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.io.TempDir;
-
 import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 import uk.org.webcompere.systemstubs.jupiter.SystemStub;
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
@@ -24,10 +24,14 @@ public class FileAlarmTest {
 	private EnvironmentVariables locationEnvironmentVariables = new EnvironmentVariables("firealarm.location", System.getProperty("user.dir"));
 
 	FireAlarm fireAlarm;
+	Field sensorsField;
+
 	
 	@BeforeEach
-	public void setUp() throws ConfigurationFileProblemException, DatabaseProblemException {
+	public void setUp() throws ConfigurationFileProblemException, DatabaseProblemException, NoSuchFieldException, SecurityException {
 		fireAlarm = new FireAlarm();
+		sensorsField = fireAlarm.getClass().getDeclaredField("sensors");
+		sensorsField.setAccessible(true);
 	}
 	
 	/**
@@ -71,6 +75,14 @@ public class FileAlarmTest {
 			});
 	}
 
+
+	@Test
+	public void test_NoUsefulEndpoint_SensorConnectionProblemException() throws ConfigurationFileProblemException, DatabaseProblemException, IOException, NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+		HashMap <String, String> sensorsTest = new HashMap<>();
+		sensorsTest.put("room", "error");
+		sensorsField.set(fireAlarm, sensorsTest);
+		assertThrows(SensorConnectionProblemException.class, () -> fireAlarm.isTemperatureTooHigh());
+	}
 
 	/**
 	 * Test case to verify that the default temperature is not too high.
