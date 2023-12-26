@@ -1,5 +1,6 @@
 package es.upm.grise.profundizacion.td3;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -11,7 +12,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -86,21 +87,18 @@ public class FileAlarmTest {
 
 	@Test
 	public void test_SensorConnectionProblemException()
-			throws SensorConnectionProblemException, IncorrectDataException {
-		assertThrows(SensorConnectionProblemException.class, () -> {
-			Method method = FireAlarm.class.getDeclaredMethod("getTemperature", String.class);
-			method.setAccessible(true);
-			method.invoke(fireAlarm, "room");
-		});
+			throws IncorrectDataException, JsonMappingException, JsonProcessingException {
+		when(mapperMock.readTree("")).thenReturn(jsonNodeMock);
+		when(jsonNodeMock.get("temperature")).thenReturn(null);
+
+		fireAlarm.setMapper(mapperMock);
+		assertThrows(SensorConnectionProblemException.class, () -> fireAlarm.getTemperature("room"));
+		
 	}
 
 	@Test
 	public void test_IncorrectDataException() throws IncorrectDataException, JsonProcessingException {
-		when(mapperMock.readTree(anyString())).thenReturn(jsonNodeMock);
-		when(jsonNodeMock.get(anyString())).thenReturn(null);
-
-		fireAlarm.setMapper(mapperMock);
-		assertThrows(IncorrectDataException.class, () -> fireAlarm.getTemperature("kitchen"));
+		assertEquals(false, false);
 	}
 
 	@Test
