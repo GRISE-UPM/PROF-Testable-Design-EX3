@@ -1,27 +1,32 @@
 package es.upm.grise.profundizacion.td3;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import es.upm.grise.profundizacion.td3.exceptions.ConfigurationFileProblemException;
+import es.upm.grise.profundizacion.td3.exceptions.DatabaseProblemException;
+import es.upm.grise.profundizacion.td3.exceptions.IncorrectDataException;
+import es.upm.grise.profundizacion.td3.exceptions.SensorConnectionProblemException;
+
 import java.io.FileInputStream;
-import java.sql.Statement;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.net.URL;
 
 public class FireAlarm {
 	
 	// Sensors are stored in a hash map for easier access
-	private HashMap<String, String> sensors = new HashMap<String, String>();
+	private Map<String, String> sensors;
+
+	private ObjectMapper mapper;
+	
+	final static int MAX_TEMPERATURE = 80;
 	
 	// Constructor: read the sensors from the database and store them
 	// in the hash map
-	public FireAlarm() throws ConfigurationFileProblemException, DatabaseProblemException {
+
+	public FireAlarm(DBConnector dbConnector) throws ConfigurationFileProblemException, DatabaseProblemException {
 		
 		// Read the property file to find out the database location
 		// As the executable can be located anywhere, so we store the
@@ -40,39 +45,12 @@ public class FireAlarm {
 			
 		}
 		  
+
 		// Then we obtain the database location
 		String dblocation = configProperties.getProperty("dblocation");
-		
-		// Now we store the sensors' data in the sensors variable
-		// It takes several steps determined by the SQL API
-		try {
-			
-			// Create DB connection
-			Connection connection = DriverManager.getConnection(dblocation);
-
-			// Read from the sensors table
-			String query = "SELECT * FROM sensors";
-			Statement statement = connection.createStatement();
-			ResultSet resultSet = statement.executeQuery(query);
-
-			// Iterate until we get all sensors' data
-			while (resultSet.next()) {
-				
-				String room = resultSet.getString("room");
-				String endpoint = resultSet.getString("endpoint");
-				sensors.put(room, endpoint);
-				
-			}
-
-			// Close the connection
-			connection.close();
-
-		} catch (Exception e) {
-			
-			throw new DatabaseProblemException(); 
-			
-		}
-
+		dbConnector.connect(dblocation);
+		this.sensors = dbConnector.getSensors();
+		dbConnector.closeConnection();
 	}
 
 	// Read the temperature from a sensor
@@ -80,7 +58,7 @@ public class FireAlarm {
 
 		String endpoint = sensors.get(room);
 		URL url;
-		ObjectMapper mapper = new ObjectMapper();
+		ObjectMapper mapper = this.mapper == null ? new ObjectMapper() : this.mapper;
 		JsonNode result;
 
 		// Using the Jackson library we can get JSON directly from an
@@ -113,11 +91,12 @@ public class FireAlarm {
 		
 	}
 
+	public void setMapper(ObjectMapper mapper) {
+		this.mapper = mapper;
+	}
 
 	public boolean isTemperatureTooHigh() throws SensorConnectionProblemException, IncorrectDataException {
-		
-		final int MAX_TEMPERATURE = 80;
-		
+			
 		// If any temperature exceeds MAX_TEMPERATURE, then the 
 		// temperature is too high
 		for(Entry<String, String> sensor : sensors.entrySet()) {
@@ -128,6 +107,10 @@ public class FireAlarm {
 		
 		return false;
 		
+	}
+
+	public static int getMaxTemperature() {
+		return MAX_TEMPERATURE;
 	}
 	
 }
