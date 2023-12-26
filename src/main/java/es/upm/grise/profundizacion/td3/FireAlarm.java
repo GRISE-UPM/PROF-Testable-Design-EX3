@@ -17,12 +17,25 @@ import java.net.URL;
 public class FireAlarm {
 	
 	// Sensors are stored in a hash map for easier access
-	private HashMap<String, String> sensors = new HashMap<String, String>();
+	private HashMap<String, String> sensors;
+	private ObjectMapper mapper;
 	
 	// Constructor: read the sensors from the database and store them
 	// in the hash map
-	public FireAlarm() throws ConfigurationFileProblemException, DatabaseProblemException {
-		
+	public FireAlarm() {
+		this.sensors = new HashMap<String, String>();
+		this.mapper = new ObjectMapper();
+	}
+
+	public void setMapper(ObjectMapper mapper) {
+		this.mapper = mapper;
+	}
+
+	public void setSensors(HashMap<String, String> sensors) {
+		this.sensors = sensors;
+	}
+	
+	public void loadSensors() throws ConfigurationFileProblemException, DatabaseProblemException{
 		// Read the property file to find out the database location
 		// As the executable can be located anywhere, so we store the
 		// app directory in a environment variable (without the slash
@@ -72,22 +85,20 @@ public class FireAlarm {
 			throw new DatabaseProblemException(); 
 			
 		}
-
 	}
 
 	// Read the temperature from a sensor
-	private int getTemperature(String room) throws SensorConnectionProblemException, IncorrectDataException {
+	public int getTemperature(String room) throws SensorConnectionProblemException, IncorrectDataException {
 
 		String endpoint = sensors.get(room);
 		URL url;
-		ObjectMapper mapper = new ObjectMapper();
 		JsonNode result;
 
 		// Using the Jackson library we can get JSON directly from an
 		// URL using an ObjectMapper
 		try {
 			url = new URL(endpoint);
-			result = mapper.readTree(url);
+			result = this.mapper.readTree(url);
 		} catch (Exception e) {
 			throw new SensorConnectionProblemException();
 		}

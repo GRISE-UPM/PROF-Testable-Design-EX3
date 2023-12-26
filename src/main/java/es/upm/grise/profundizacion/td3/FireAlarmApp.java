@@ -7,6 +7,7 @@ public class FireAlarmApp {
 		try {
 
 			FireAlarm fireAlarm = new FireAlarm();
+			fireAlarm.loadSensors();
 
 			// Main loop
 			while (true) {
