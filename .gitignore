@@ -1,0 +1,5 @@
+#Maven Target folder
+target/
+
+#VS Code conf folder
+.vscode/
