@@ -12,12 +12,17 @@ import java.sql.Statement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.net.URL;
 
 public class FireAlarm {
 	
 	// Sensors are stored in a hash map for easier access
 	private HashMap<String, String> sensors = new HashMap<String, String>();
+
+	private String dblocation; //accesible por otros métodos para realizar consultas y por tanto hacer pruebas
+
+	private ObjectMapper mapper; //accesible por otros métodos para explorar la base de datos y para hacer pruebas
 	
 	// Constructor: read the sensors from the database and store them
 	// in the hash map
@@ -72,15 +77,14 @@ public class FireAlarm {
 			throw new DatabaseProblemException(); 
 			
 		}
-
 	}
 
 	// Read the temperature from a sensor
-	private int getTemperature(String room) throws SensorConnectionProblemException, IncorrectDataException {
+	public int getTemperature(String room, ObjectMapper new_mapper) throws SensorConnectionProblemException, IncorrectDataException {
 
 		String endpoint = sensors.get(room);
 		URL url;
-		ObjectMapper mapper = new ObjectMapper();
+		this.mapper = new_mapper; //either reset or insert new mapper
 		JsonNode result;
 
 		// Using the Jackson library we can get JSON directly from an
@@ -122,7 +126,7 @@ public class FireAlarm {
 		// temperature is too high
 		for(Entry<String, String> sensor : sensors.entrySet()) {
 			
-			if(getTemperature(sensor.getKey()) > MAX_TEMPERATURE)
+			if(getTemperature(sensor.getKey(), new ObjectMapper()) > MAX_TEMPERATURE)
 					return true;
 		}
 		
@@ -130,4 +134,20 @@ public class FireAlarm {
 		
 	}
 	
+	public void dummyQuery() throws SQLException, DatabaseProblemException{
+		try {
+			// Create DB connection
+			Connection connection = DriverManager.getConnection(dblocation);
+
+			// Read from the sensors table
+			String query = "SELECT * FROM sensors";
+			Statement statement = connection.createStatement();
+			statement.executeQuery(query); //Discard the output, this is a dummy method, here exclusively for testing purposes
+
+		} catch (Exception e) {
+			
+			throw new DatabaseProblemException(); 
+			
+		}
+	}
 }
