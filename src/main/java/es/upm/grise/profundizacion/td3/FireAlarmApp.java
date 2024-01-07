@@ -6,7 +6,10 @@ public class FireAlarmApp {
 
 		try {
 
-			FireAlarm fireAlarm = new FireAlarm();
+			SensorWebservice sensorWebservice = new SensorWebserviceImpl();
+			SensorRepository sensorRepository = new SensorRepository();
+
+			FireAlarm fireAlarm = new FireAlarm(sensorWebservice, sensorRepository);
 
 			// Main loop
 			while (true) {
