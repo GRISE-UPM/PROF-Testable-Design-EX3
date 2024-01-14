@@ -17,12 +17,15 @@ import java.net.URL;
 public class FireAlarm {
 	
 	// Sensors are stored in a hash map for easier access
-	private HashMap<String, String> sensors = new HashMap<String, String>();
+	protected HashMap<String, String> sensors = new HashMap<String, String>();
+	protected ObjectMapper mapper;
+	protected String dblocation;
 	
 	// Constructor: read the sensors from the database and store them
 	// in the hash map
 	public FireAlarm() throws ConfigurationFileProblemException, DatabaseProblemException {
 		
+		try {
 		// Read the property file to find out the database location
 		// As the executable can be located anywhere, so we store the
 		// app directory in a environment variable (without the slash
@@ -32,7 +35,7 @@ public class FireAlarm {
 
 		try {
 			
-			configProperties.load(new FileInputStream(appLocation + "/resources/config.properties"));
+			configProperties.load(new FileInputStream(appLocation + "./resources/config.properties"));
 			
 		} catch (Exception e) {
 			
@@ -66,17 +69,20 @@ public class FireAlarm {
 
 			// Close the connection
 			connection.close();
-
+			mapper = new ObjectMapper();
+			
 		} catch (Exception e) {
 			
 			throw new DatabaseProblemException(); 
 			
-		}
-
+		} 
+		}catch (ConfigurationFileProblemException e) {
+	        throw e;
+	    }
 	}
 
 	// Read the temperature from a sensor
-	private int getTemperature(String room) throws SensorConnectionProblemException, IncorrectDataException {
+	protected int getTemperature(String room) throws SensorConnectionProblemException, IncorrectDataException {
 
 		String endpoint = sensors.get(room);
 		URL url;
@@ -107,6 +113,13 @@ public class FireAlarm {
 		// If the value is not integer, we raise the same error
 		if(!result.canConvertToInt())
 			throw new IncorrectDataException();
+		
+		
+		
+		//Se añade codigo
+		if (result == null || !result.has("temperature") || !result.get("temperature").isInt()) {
+		    throw new IncorrectDataException();
+		}
 
 		// When everything is correct, we return the temperature as an Int
 		return result.asInt();
@@ -128,6 +141,12 @@ public class FireAlarm {
 		
 		return false;
 		
+	}
+	
+	
+	public void setMapper(ObjectMapper mapper){
+		
+		this.mapper = mapper;
 	}
 	
 }
