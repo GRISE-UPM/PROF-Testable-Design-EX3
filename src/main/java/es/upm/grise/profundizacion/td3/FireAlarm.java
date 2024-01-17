@@ -76,11 +76,10 @@ public class FireAlarm {
 	}
 
 	// Read the temperature from a sensor
-	private int getTemperature(String room) throws SensorConnectionProblemException, IncorrectDataException {
+	protected int getTemperature(String room, ObjectMapper mapper) throws SensorConnectionProblemException, IncorrectDataException {
 
 		String endpoint = sensors.get(room);
 		URL url;
-		ObjectMapper mapper = new ObjectMapper();
 		JsonNode result;
 
 		// Using the Jackson library we can get JSON directly from an
@@ -112,9 +111,12 @@ public class FireAlarm {
 		return result.asInt();
 		
 	}
+	protected int getTemperature(String room) throws SensorConnectionProblemException, IncorrectDataException {
+		return this.getTemperature(room, new ObjectMapper());
+	}
 
 
-	public boolean isTemperatureTooHigh() throws SensorConnectionProblemException, IncorrectDataException {
+	protected boolean isTemperatureTooHigh(ObjectMapper mapper) throws SensorConnectionProblemException, IncorrectDataException {
 		
 		final int MAX_TEMPERATURE = 80;
 		
@@ -122,12 +124,16 @@ public class FireAlarm {
 		// temperature is too high
 		for(Entry<String, String> sensor : sensors.entrySet()) {
 			
-			if(getTemperature(sensor.getKey()) > MAX_TEMPERATURE)
+			if(getTemperature(sensor.getKey(), mapper) > MAX_TEMPERATURE)
 					return true;
 		}
 		
 		return false;
 		
+	}
+
+	public boolean isTemperatureTooHigh() throws SensorConnectionProblemException, IncorrectDataException {
+		return this.isTemperatureTooHigh(new ObjectMapper());
 	}
 	
 }
