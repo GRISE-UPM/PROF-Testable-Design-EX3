@@ -17,7 +17,11 @@ import java.net.URL;
 public class FireAlarm {
 	
 	// Sensors are stored in a hash map for easier access
-	private HashMap<String, String> sensors = new HashMap<String, String>();
+	public HashMap<String, String> sensors = new HashMap<String, String>();
+
+	public ObjectMapper mapper = new ObjectMapper();
+
+	public int MAX_TEMPERATURE = 80;
 	
 	// Constructor: read the sensors from the database and store them
 	// in the hash map
@@ -42,6 +46,12 @@ public class FireAlarm {
 		  
 		// Then we obtain the database location
 		String dblocation = configProperties.getProperty("dblocation");
+
+		conexionBaseDatos(dblocation);
+
+	}
+
+	public void conexionBaseDatos(String dblocation) throws DatabaseProblemException{
 		
 		// Now we store the sensors' data in the sensors variable
 		// It takes several steps determined by the SQL API
@@ -76,7 +86,7 @@ public class FireAlarm {
 	}
 
 	// Read the temperature from a sensor
-	private int getTemperature(String room) throws SensorConnectionProblemException, IncorrectDataException {
+	public int getTemperature(String room) throws SensorConnectionProblemException, IncorrectDataException {
 
 		String endpoint = sensors.get(room);
 		URL url;
@@ -92,31 +102,34 @@ public class FireAlarm {
 			throw new SensorConnectionProblemException();
 		}
 		
-		// If no JSON data is returned, we raise an exception
-		if(result == null)
-			throw new IncorrectDataException();
-		
-		// The sensor returns an JSON object with a single key/value
-		// pair named "temperature".
-		result = result.get("temperature");
-		
-		// The key "temperature" may not exist
-		if(result == null)
-			throw new IncorrectDataException();
-		
-		// If the value is not integer, we raise the same error
-		if(!result.canConvertToInt())
-			throw new IncorrectDataException();
-
-		// When everything is correct, we return the temperature as an Int
-		return result.asInt();
+		return jSon(result);
 		
 	}
 
+	public int jSon(JsonNode result) throws IncorrectDataException{
+		
+			// If no JSON data is returned, we raise an exception
+			if(result == null)
+			throw new IncorrectDataException();
+			
+			// The sensor returns an JSON object with a single key/value
+			// pair named "temperature".
+			result = result.get("temperature");
+			
+			// The key "temperature" may not exist
+			if(result == null)
+				throw new IncorrectDataException();
+			
+			// If the value is not integer, we raise the same error
+			if(!result.canConvertToInt())
+				throw new IncorrectDataException();
+	
+			// When everything is correct, we return the temperature as an Int
+			return result.asInt();
+		}
+
 
 	public boolean isTemperatureTooHigh() throws SensorConnectionProblemException, IncorrectDataException {
-		
-		final int MAX_TEMPERATURE = 80;
 		
 		// If any temperature exceeds MAX_TEMPERATURE, then the 
 		// temperature is too high
