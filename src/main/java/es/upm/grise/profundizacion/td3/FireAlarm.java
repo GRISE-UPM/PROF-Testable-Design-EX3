@@ -18,7 +18,7 @@ public class FireAlarm {
 	
 	// Sensors are stored in a hash map for easier access
 	protected HashMap<String, String> sensors = new HashMap<String, String>();
-	protected ObjectMappper map;
+	protected ObjectMapper map;
 	
 	// Constructor: read the sensors from the database and store them
 	// in the hash map
