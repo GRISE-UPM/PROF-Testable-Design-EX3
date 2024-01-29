@@ -56,6 +56,8 @@ public class FileAlarmTest {
 		escritor.close();
 	}
 	
+
+	
 	@Test
 	public void endpointNoUtilizableTest() throws SensorConnectionProblemException{
 		fireAlarm.sensors.put("habitacion", "http://www.enlacenovalido.com");
@@ -74,7 +76,7 @@ public class FileAlarmTest {
 	
 	@Test
 	public void temperatureIsOk() throws SensorConnectionProblemException, IncorrectDataException {
-		doReturn(100).when(fireAlarm).getTemperature(anyString());
+		doReturn(100).when(fireAlarm.getTemperature(anyString()));
 		assertFalse(fireAlarm.isTemperatureTooHigh());		
 	}
 	
