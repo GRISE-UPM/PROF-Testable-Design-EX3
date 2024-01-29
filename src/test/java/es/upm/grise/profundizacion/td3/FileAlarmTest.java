@@ -36,25 +36,25 @@ public class FileAlarmTest {
 
 	@BeforeAll
 	public static void setup() throws IOException {
-		save = leerArchivo("resources\\config.properties");
+		save = leerArchivo("resources/config.properties");
 	}
 
 	@BeforeEach
 	public void beforeEach() throws ConfigurationFileProblemException, DatabaseProblemException, IOException {
 		ev.set("firealarm.location", System.getProperty("user.dir"));
-		crearArchivo("resources\\config.properties");
-		sobrescribirArchivo("resources\\config.properties", save);
+		crearArchivo("resources/config.properties");
+		sobrescribirArchivo("resources/config.properties", save);
 	}
 
 	@Test
 	public void ficheroNoLocalizado() throws IOException {
-		borrarArchivo("resources\\config.properties");
+		borrarArchivo("resources/config.properties");
 		assertThrows(ConfigurationFileProblemException.class, () -> new FireAlarm());
 	}
 
 	@Test
 	public void errorDB() throws SensorConnectionProblemException, IncorrectDataException, IOException {
-		sobrescribirArchivo("resources\\config.properties", "dblocation=nothing");
+		sobrescribirArchivo("resources/config.properties", "dblocation=nothing");
 		assertThrows(DatabaseProblemException.class, () -> new FireAlarm());
 	}
 

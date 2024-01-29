@@ -43,7 +43,7 @@ public class FireAlarm {
 
 		try {
 			
-			configProperties.load(new FileInputStream(appLocation + "\\resources\\config.properties"));
+			configProperties.load(new FileInputStream(appLocation + "/resources/config.properties"));
 			
 		} catch (Exception e) {
 			
