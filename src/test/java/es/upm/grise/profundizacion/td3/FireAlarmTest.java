@@ -2,8 +2,6 @@ package es.upm.grise.profundizacion.td3;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
-
 
 import java.io.File;
 import java.io.FileWriter;
@@ -18,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import uk.org.webcompere.systemstubs.environment.EnvironmentVariables;
 import uk.org.webcompere.systemstubs.jupiter.SystemStub;
 import uk.org.webcompere.systemstubs.jupiter.SystemStubsExtension;
 
