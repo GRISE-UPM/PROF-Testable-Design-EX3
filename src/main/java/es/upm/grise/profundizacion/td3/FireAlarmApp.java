@@ -18,7 +18,7 @@ public class FireAlarmApp {
 
 			}
 
-		} catch (ConfigurationFileProblemException e) {
+		} catch (ConfigurationFileProblemException e ) {
 
 			// ...
 
